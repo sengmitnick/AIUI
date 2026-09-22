@@ -28,10 +28,12 @@ AIUI Skills 用于为智能体补充面向特定开发任务的上下文、规�
 - `apis-canvas.md`：Canvas 相关 API 参考
 - `components.md`：内置组件说明
 - `wxss.md`：WXSS 与样式能力说明
-- `design-system-green.md`：绿色单色显示设备设计规范
+- `references/design/monochrome-green.md`：绿色单色显示设备的基础视觉规范
+- `references/design/green-spatial-hud.md`：面向符合条件的单绿全屏 Page 的低干扰空间 HUD 位置与注意力规范；它由 `aiui-dev` 按需加载，不是独立 Skill
 
 ## 使用建议
 
 - 当你希望智能体生成 AIUI 页面代码时，优先引入 `aiui-dev`
 - 当你需要确认组件、样式或 API 是否受支持时，以该 Skill 中的说明为准
 - 当你开发面向 Rokid 等目标设备的界面时，结合设计系统文档统一视觉与交互约束
+- 当页面是展示常驻或瞬时 HUD 的单绿全屏 Page 时，在基础单绿规范之后加载空间 HUD profile；不要自动套给对话卡片、阅读器或普通 Widget

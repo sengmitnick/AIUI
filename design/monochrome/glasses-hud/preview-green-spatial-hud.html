@@ -1,0 +1,2076 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Rokid AIUI 单绿低干扰空间 HUD：面向透明 AI 眼镜的布局、注意力与验证规范。">
+  <title>AIUI · 单绿低干扰空间 HUD</title>
+  <style>
+    :root {
+      --paper: #f7f8f5;
+      --paper-raised: #ffffff;
+      --paper-subtle: #eff1ed;
+      --ink: #101612;
+      --ink-muted: #657068;
+      --line: #dde2dc;
+      --line-strong: #bfc8bf;
+      --green: #40ff5e;
+      --green-72: rgba(64, 255, 94, .72);
+      --green-48: rgba(64, 255, 94, .48);
+      --green-24: rgba(64, 255, 94, .24);
+      --green-12: rgba(64, 255, 94, .12);
+      --green-06: rgba(64, 255, 94, .06);
+      --stage-ink: rgba(64, 255, 94, .72);
+      --sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      --mono: ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-color: #a5b0a6;
+      text-underline-offset: 3px;
+    }
+
+    a:hover { color: #167f2b; }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+
+    code {
+      padding: 1px 4px;
+      border-radius: 4px;
+      background: #edf1eb;
+      color: #275c35;
+      font-family: var(--mono);
+      font-size: .86em;
+    }
+
+    .mobile-bar {
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(247, 248, 245, .94);
+      backdrop-filter: blur(14px);
+    }
+
+    .mobile-brand,
+    .brand-title {
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .brand-mark {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-right: 8px;
+      border-radius: 50%;
+      background: #28a747;
+      vertical-align: 1px;
+    }
+
+    .mobile-version {
+      color: var(--ink-muted);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .doc-shell {
+      display: grid;
+      grid-template-columns: 244px minmax(0, 790px) 190px;
+      gap: 44px;
+      width: min(1440px, 100%);
+      margin: 0 auto;
+      padding: 0 36px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 38px 0 28px;
+      border-right: 1px solid var(--line);
+    }
+
+    .brand {
+      display: block;
+      margin-bottom: 42px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .brand-subtitle {
+      display: block;
+      margin-top: 7px;
+      color: var(--ink-muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .side-group {
+      margin: 0 0 24px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .side-label {
+      display: block;
+      margin: 0 0 8px;
+      color: #8a948d;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .side-group a {
+      display: block;
+      padding: 5px 18px 5px 0;
+      color: var(--ink-muted);
+      font-size: 13px;
+      line-height: 1.45;
+      text-decoration: none;
+    }
+
+    .side-group a:hover,
+    .side-group a.active {
+      color: #147d2b;
+    }
+
+    .side-group a.active {
+      font-weight: 650;
+    }
+
+    .side-foot {
+      position: absolute;
+      right: 26px;
+      bottom: 29px;
+      left: 0;
+      color: #8a948d;
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    main {
+      min-width: 0;
+      padding: 76px 0 88px;
+    }
+
+    .right-rail {
+      position: sticky;
+      top: 38px;
+      align-self: start;
+      margin-top: 76px;
+      padding-left: 19px;
+      border-left: 1px solid var(--line);
+    }
+
+    .right-rail h2 {
+      margin: 0 0 12px;
+      color: #8a948d;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    .right-rail a {
+      display: block;
+      margin: 7px 0;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.45;
+      text-decoration: none;
+    }
+
+    .right-rail a:hover { color: #147d2b; }
+
+    .hero {
+      padding-bottom: 58px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 0 18px;
+      color: #2c7f3d;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #30c652;
+      content: "";
+    }
+
+    h1,
+    h2,
+    h3,
+    p { margin-top: 0; }
+
+    h1 {
+      max-width: 720px;
+      margin-bottom: 22px;
+      color: #0e1711;
+      font-size: clamp(37px, 5.2vw, 58px);
+      font-weight: 680;
+      letter-spacing: -.055em;
+      line-height: 1.08;
+    }
+
+    .hero-lede {
+      max-width: 680px;
+      margin-bottom: 28px;
+      color: #4b564e;
+      font-size: 18px;
+      line-height: 1.72;
+    }
+
+    .hero-lede strong { color: #196b2d; }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #536058;
+      background: rgba(255, 255, 255, .72);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .02em;
+    }
+
+    .section {
+      padding: 66px 0;
+      border-bottom: 1px solid var(--line);
+      scroll-margin-top: 28px;
+    }
+
+    .section:last-of-type { border-bottom: 0; }
+
+    .section-index {
+      margin-bottom: 11px;
+      color: #8a948d;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .07em;
+    }
+
+    .section h2 {
+      max-width: 680px;
+      margin-bottom: 13px;
+      color: #111913;
+      font-size: 28px;
+      font-weight: 680;
+      letter-spacing: -.035em;
+      line-height: 1.24;
+    }
+
+    .section-intro {
+      max-width: 710px;
+      margin-bottom: 30px;
+      color: #566158;
+      font-size: 15px;
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 12px;
+      max-width: 730px;
+      margin: 26px 0 0;
+      padding: 15px 17px;
+      border-left: 2px solid #2eae4d;
+      background: #eff7ee;
+      color: #395043;
+      font-size: 14px;
+    }
+
+    .callout-symbol {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      color: #1a8d35;
+      font-family: var(--mono);
+      font-size: 16px;
+      line-height: 1.25;
+    }
+
+    .thesis-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .thesis-card {
+      min-height: 177px;
+      padding: 18px 18px 17px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper-raised);
+    }
+
+    .thesis-number {
+      display: block;
+      margin-bottom: 24px;
+      color: #31a84b;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .thesis-card h3 {
+      margin-bottom: 7px;
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .thesis-card p {
+      margin-bottom: 0;
+      color: var(--ink-muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .mode-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--paper-raised);
+    }
+
+    .mode-table {
+      width: 100%;
+      min-width: 700px;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .mode-table th,
+    .mode-table td {
+      padding: 13px 15px;
+      border-bottom: 1px solid #e8ece7;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .mode-table tr:last-child td { border-bottom: 0; }
+
+    .mode-table th {
+      color: #849087;
+      background: #fafbfa;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .mode-table td:first-child {
+      width: 178px;
+      color: #186d2c;
+      font-family: var(--mono);
+      font-weight: 700;
+    }
+
+    .mode-table td { color: #4e5b52; }
+
+    .anchor-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(230px, .8fr);
+      gap: 18px;
+      margin-top: 30px;
+    }
+
+    .anchor-notes {
+      display: grid;
+      gap: 11px;
+      align-content: start;
+    }
+
+    .anchor-note {
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+    }
+
+    .anchor-note code {
+      display: inline-block;
+      margin-bottom: 4px;
+      color: #206f32;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .anchor-note p {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.52;
+    }
+
+    .zone-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 480 / 352;
+      overflow: hidden;
+      border: 1px solid #1d3c24;
+      border-radius: 12px;
+      background:
+        radial-gradient(circle at 70% 28%, rgba(80, 158, 95, .11), transparent 24%),
+        linear-gradient(145deg, #061208, #000 72%);
+      color: var(--green-72);
+    }
+
+    .zone-stage::before {
+      position: absolute;
+      inset: 3.41% 3.33%;
+      border: 1px dashed rgba(64, 255, 94, .20);
+      content: "";
+      pointer-events: none;
+    }
+
+    .zone-stage::after {
+      position: absolute;
+      inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+      background-size: 10% 14.285%;
+      content: "";
+      opacity: .45;
+      pointer-events: none;
+    }
+
+    .zone {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(64, 255, 94, .25);
+      color: rgba(64, 255, 94, .60);
+      background: rgba(64, 255, 94, .025);
+      font-family: var(--mono);
+      font-size: clamp(8px, 1.3vw, 11px);
+      letter-spacing: .045em;
+      text-align: center;
+      z-index: 1;
+    }
+
+    .zone span {
+      display: block;
+      color: rgba(64, 255, 94, .38);
+      font-size: .82em;
+      line-height: 1.35;
+    }
+
+    .zone-top {
+      top: 7.5%;
+      right: 14%;
+      left: 14%;
+      height: 17%;
+    }
+
+    .zone-center {
+      top: 29%;
+      right: 21%;
+      left: 21%;
+      height: 33%;
+      border-style: dashed;
+    }
+
+    .zone-rail {
+      right: 5.83%;
+      bottom: 16.48%;
+      left: 5.83%;
+      height: 17%;
+      border-color: rgba(64, 255, 94, .68);
+      background: rgba(64, 255, 94, .05);
+      color: rgba(64, 255, 94, .88);
+    }
+
+    .zone-footer {
+      right: 5.83%;
+      bottom: 3.98%;
+      left: 5.83%;
+      height: 5.11%;
+      border-color: rgba(64, 255, 94, .40);
+      color: rgba(64, 255, 94, .6);
+    }
+
+    .coordinate-tag {
+      position: absolute;
+      z-index: 2;
+      color: rgba(64, 255, 94, .42);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .04em;
+    }
+
+    .coordinate-tag.top { top: 8px; left: 10px; }
+    .coordinate-tag.bottom { right: 10px; bottom: 8px; }
+
+    .lab {
+      margin-top: 30px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .lab-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .lab-title {
+      margin: 0 0 3px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .lab-subtitle {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: 12px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .control-button {
+      min-height: 30px;
+      padding: 5px 10px;
+      border: 1px solid #d5ded5;
+      border-radius: 6px;
+      color: #617066;
+      background: #fff;
+      font-size: 12px;
+      line-height: 1.25;
+      transition: border-color .16s ease, color .16s ease, background .16s ease;
+    }
+
+    .control-button:hover {
+      border-color: #87ae8d;
+      color: #1d7831;
+    }
+
+    .control-button[aria-pressed="true"] {
+      border-color: #52a961;
+      color: #176e2a;
+      background: #eef8ee;
+      font-weight: 700;
+    }
+
+    .environment-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding-top: 14px;
+      border-top: 1px solid #edf0ec;
+    }
+
+    .environment-label {
+      margin-right: 3px;
+      color: #879187;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+
+    .lens-wrap {
+      width: min(100%, 650px);
+      margin: 17px auto 0;
+    }
+
+    .lens-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 480 / 352;
+      overflow: hidden;
+      border: 1px solid #1e3923;
+      border-radius: 12px;
+      color: var(--green-72);
+      isolation: isolate;
+      transition: background .25s ease;
+    }
+
+    .lens-stage[data-environment="dark"] {
+      background:
+        radial-gradient(circle at 76% 22%, rgba(96, 140, 90, .12), transparent 24%),
+        radial-gradient(circle at 28% 72%, rgba(35, 80, 44, .20), transparent 34%),
+        linear-gradient(145deg, #081008, #000 62%);
+    }
+
+    .lens-stage[data-environment="bright"] {
+      background:
+        radial-gradient(circle at 16% 18%, rgba(255,255,255,.82), transparent 31%),
+        linear-gradient(120deg, #c9d3c4 0%, #859280 42%, #3f4d41 100%);
+    }
+
+    .lens-stage[data-environment="busy"] {
+      background:
+        linear-gradient(113deg, transparent 0 24%, rgba(255, 232, 177, .22) 24% 26%, transparent 26% 51%, rgba(151, 205, 219, .23) 51% 54%, transparent 54%),
+        radial-gradient(ellipse at 19% 83%, #3a2d1d 0 10%, transparent 10.5%),
+        radial-gradient(ellipse at 79% 75%, #1c343a 0 17%, transparent 17.5%),
+        radial-gradient(circle at 86% 23%, #cab27c 0 9%, transparent 9.5%),
+        linear-gradient(150deg, #4a453c, #182522 58%, #090d0a);
+    }
+
+    .lens-stage::before {
+      position: absolute;
+      inset: 3.41% 3.33%;
+      z-index: 1;
+      border: 1px dashed rgba(64, 255, 94, .17);
+      content: "";
+      pointer-events: none;
+    }
+
+    .lens-stage::after {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      background: linear-gradient(180deg, rgba(255,255,255,.032), transparent 18%, transparent 82%, rgba(0,0,0,.12));
+      content: "";
+      pointer-events: none;
+    }
+
+    .stage-measure {
+      position: absolute;
+      top: 8px;
+      left: 11px;
+      z-index: 8;
+      color: rgba(64, 255, 94, .32);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .04em;
+    }
+
+    .stage-state {
+      position: absolute;
+      top: 8px;
+      right: 11px;
+      z-index: 8;
+      color: rgba(64, 255, 94, .36);
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .scene-word,
+    .scene-pairing,
+    .scene-menu,
+    .scene-pet,
+    .scene-game,
+    .scene-bad-shell,
+    .scene-settings {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .hud-rail {
+      position: absolute;
+      right: 5.83%;
+      bottom: 16.48%;
+      left: 5.83%;
+      color: var(--green-72);
+    }
+
+    .hud-kicker {
+      margin: 0 0 5px;
+      color: var(--green-48);
+      font-family: var(--mono);
+      font-size: clamp(8px, 1.4vw, 11px);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .hud-mainline {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .hud-mainline strong {
+      color: var(--green);
+      font-size: clamp(17px, 4vw, 28px);
+      font-weight: 620;
+      letter-spacing: -.035em;
+      line-height: 1.08;
+    }
+
+    .hud-action {
+      color: var(--green-72);
+      font-size: clamp(9px, 1.55vw, 12px);
+      white-space: nowrap;
+    }
+
+    .progress-track {
+      position: relative;
+      height: 1px;
+      margin-top: 10px;
+      background: var(--green-24);
+    }
+
+    .progress-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 52%;
+      height: 1px;
+      background: var(--green-72);
+    }
+
+    .progress-node {
+      position: absolute;
+      top: -2px;
+      left: 52%;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+      transform: translateX(-2px);
+    }
+
+    .hud-footer {
+      position: absolute;
+      right: 5.83%;
+      bottom: 3.98%;
+      left: 5.83%;
+      display: flex;
+      justify-content: space-between;
+      color: var(--green-48);
+      font-size: clamp(8px, 1.4vw, 11px);
+      line-height: 1.25;
+    }
+
+    .hud-footer strong {
+      color: var(--green-72);
+      font-family: var(--mono);
+      font-size: 1.1em;
+      font-weight: 650;
+    }
+
+    .pairing-moment {
+      position: absolute;
+      right: 14%;
+      bottom: 24%;
+      left: 14%;
+      text-align: center;
+    }
+
+    .pairing-label {
+      margin: 0 0 6px;
+      color: var(--green-72);
+      font-size: clamp(10px, 2vw, 14px);
+      font-weight: 650;
+    }
+
+    .pairing-code {
+      margin: 0;
+      color: var(--green);
+      font-family: var(--mono);
+      font-size: clamp(31px, 8.1vw, 55px);
+      font-weight: 700;
+      letter-spacing: .09em;
+      line-height: 1.05;
+    }
+
+    .pairing-hint {
+      margin: 7px 0 0;
+      color: var(--green-48);
+      font-size: clamp(9px, 1.55vw, 11px);
+    }
+
+    .pairing-track {
+      width: 60%;
+      height: 1px;
+      margin: 12px auto 0;
+      background: var(--green-24);
+    }
+
+    .pairing-track span {
+      display: block;
+      width: 63%;
+      height: 1px;
+      background: var(--green-72);
+    }
+
+    .menu-rail {
+      position: absolute;
+      right: 5.83%;
+      bottom: 14.7%;
+      left: 5.83%;
+      display: grid;
+      gap: 4px;
+    }
+
+    .menu-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: clamp(25px, 5.5vw, 34px);
+      padding: 0 9px;
+      border: 1px solid transparent;
+      color: var(--green-48);
+      font-size: clamp(10px, 1.85vw, 13px);
+    }
+
+    .menu-row .menu-icon {
+      width: 20px;
+      color: var(--green-24);
+      font-family: var(--mono);
+      text-align: center;
+    }
+
+    .menu-row.focused {
+      border-color: var(--green-72);
+      background: var(--green-12);
+      color: var(--green);
+    }
+
+    .menu-row.focused .menu-icon {
+      color: var(--green);
+    }
+
+    .menu-hint {
+      position: absolute;
+      right: 5.83%;
+      bottom: 3.98%;
+      left: 5.83%;
+      color: var(--green-48);
+      font-size: clamp(8px, 1.4vw, 11px);
+      text-align: center;
+    }
+
+    .pet-avatar {
+      position: absolute;
+      top: 25%;
+      left: 50%;
+      width: clamp(74px, 18vw, 115px);
+      height: clamp(74px, 18vw, 115px);
+      border: 1px solid var(--green-48);
+      border-radius: 48% 48% 42% 42%;
+      background: radial-gradient(circle at 33% 29%, rgba(64,255,94,.18), transparent 20%), rgba(64,255,94,.03);
+      transform: translateX(-50%);
+    }
+
+    .pet-ear {
+      position: absolute;
+      top: -13%;
+      width: 28%;
+      height: 33%;
+      border: 1px solid var(--green-48);
+      background: rgba(64,255,94,.04);
+    }
+
+    .pet-ear.left {
+      left: 9%;
+      border-radius: 100% 12% 25% 18%;
+      transform: rotate(-25deg);
+    }
+
+    .pet-ear.right {
+      right: 9%;
+      border-radius: 12% 100% 18% 25%;
+      transform: rotate(25deg);
+    }
+
+    .pet-eye {
+      position: absolute;
+      top: 47%;
+      width: 10%;
+      height: 10%;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 9px rgba(64,255,94,.35);
+    }
+
+    .pet-eye.left { left: 29%; }
+    .pet-eye.right { right: 29%; }
+
+    .pet-mouth {
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      width: 24%;
+      height: 11%;
+      border-bottom: 1px solid var(--green-72);
+      border-radius: 0 0 100% 100%;
+      transform: translateX(-50%);
+    }
+
+    .pet-name {
+      position: absolute;
+      top: 61%;
+      left: 50%;
+      color: var(--green-72);
+      font-family: var(--mono);
+      font-size: clamp(9px, 1.5vw, 11px);
+      letter-spacing: .09em;
+      transform: translateX(-50%);
+    }
+
+    .game-world {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .game-sky {
+      position: absolute;
+      inset: 0 0 26%;
+      background: linear-gradient(160deg, rgba(54,126,71,.18), rgba(0,0,0,.03));
+    }
+
+    .game-mountain {
+      position: absolute;
+      bottom: 25%;
+      width: 46%;
+      height: 35%;
+      border: 1px solid var(--green-24);
+      border-bottom: 0;
+      transform: rotate(45deg) skew(-9deg);
+      opacity: .7;
+    }
+
+    .game-mountain.one { left: -9%; }
+    .game-mountain.two { left: 36%; opacity: .36; }
+
+    .game-ground {
+      position: absolute;
+      right: 0;
+      bottom: 21%;
+      left: 0;
+      height: 1px;
+      background: var(--green-48);
+    }
+
+    .game-player {
+      position: absolute;
+      bottom: 23%;
+      left: 22%;
+      width: clamp(16px, 3.6vw, 23px);
+      height: clamp(25px, 5.8vw, 37px);
+      border: 1px solid var(--green);
+      border-radius: 40% 40% 14% 14%;
+      background: var(--green-12);
+    }
+
+    .game-player::before {
+      position: absolute;
+      top: -25%;
+      left: 21%;
+      width: 52%;
+      aspect-ratio: 1;
+      border: 1px solid var(--green);
+      border-radius: 50%;
+      background: #0a140a;
+      content: "";
+    }
+
+    .game-obstacle {
+      position: absolute;
+      right: 23%;
+      bottom: 22%;
+      width: clamp(13px, 2.8vw, 18px);
+      height: clamp(27px, 6.2vw, 40px);
+      border: 1px solid var(--green-72);
+      border-radius: 3px 3px 0 0;
+      background: var(--green-06);
+    }
+
+    .game-obstacle::before,
+    .game-obstacle::after {
+      position: absolute;
+      bottom: 32%;
+      width: 60%;
+      height: 1px;
+      background: var(--green-48);
+      content: "";
+    }
+
+    .game-obstacle::before { left: -53%; }
+    .game-obstacle::after { right: -53%; }
+
+    .game-status {
+      position: absolute;
+      right: 5.83%;
+      bottom: 4%;
+      left: 5.83%;
+      display: flex;
+      justify-content: space-between;
+      color: var(--green-72);
+      font-family: var(--mono);
+      font-size: clamp(8px, 1.4vw, 11px);
+    }
+
+    .game-status span:last-child { color: var(--green-48); }
+
+    .bad-shell {
+      position: absolute;
+      top: 17%;
+      right: 10%;
+      bottom: 16%;
+      left: 10%;
+      padding: 6%;
+      border: 2px solid var(--green);
+      border-radius: 16px;
+      background: rgba(64,255,94,.29);
+      color: #001c06;
+      box-shadow: 0 0 30px rgba(64,255,94,.20);
+    }
+
+    .bad-shell-top {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--mono);
+      font-size: clamp(8px, 1.35vw, 10px);
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .bad-shell h4 {
+      margin: 13% 0 4%;
+      font-size: clamp(19px, 4.2vw, 28px);
+      line-height: 1.1;
+    }
+
+    .bad-shell p {
+      margin: 0 0 11%;
+      font-size: clamp(9px, 1.6vw, 12px);
+      line-height: 1.35;
+    }
+
+    .bad-button {
+      display: block;
+      width: 100%;
+      min-height: clamp(28px, 6.2vw, 40px);
+      border: 0;
+      border-radius: 8px;
+      color: var(--green);
+      background: #052c0d;
+      font-size: clamp(9px, 1.6vw, 12px);
+      font-weight: 700;
+    }
+
+    .settings-heading {
+      position: absolute;
+      top: 22%;
+      right: 6%;
+      left: 6%;
+      color: var(--green);
+      font-size: clamp(17px, 4vw, 26px);
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .settings-wall {
+      position: absolute;
+      top: 39%;
+      right: 0;
+      left: 0;
+      display: flex;
+      gap: 7px;
+      padding-left: 4%;
+      overflow: hidden;
+    }
+
+    .setting-tile {
+      display: flex;
+      width: clamp(63px, 15vw, 96px);
+      min-width: clamp(63px, 15vw, 96px);
+      height: clamp(67px, 15vw, 96px);
+      align-items: center;
+      justify-content: center;
+      padding: 7px;
+      border: 2px solid var(--green);
+      border-radius: 10px;
+      color: var(--green);
+      background: rgba(64,255,94,.1);
+      font-size: clamp(8px, 1.45vw, 11px);
+      font-weight: 650;
+      line-height: 1.28;
+      text-align: center;
+    }
+
+    .settings-wall .setting-tile:nth-child(2n) {
+      border-color: var(--green-72);
+      color: var(--green-72);
+    }
+
+    .settings-note {
+      position: absolute;
+      right: 5.83%;
+      bottom: 8%;
+      left: 5.83%;
+      color: var(--green-48);
+      font-size: clamp(8px, 1.35vw, 10px);
+      text-align: center;
+    }
+
+    .scene-caption {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      margin: 15px 2px 0;
+    }
+
+    .caption-state {
+      display: inline-flex;
+      align-items: flex-start;
+      min-width: 80px;
+      padding-top: 2px;
+      color: #1e7b31;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .caption-state.bad { color: #9b5e25; }
+
+    .caption-copy h3 {
+      margin: 0 0 2px;
+      color: #263129;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .caption-copy p {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.58;
+    }
+
+    .budget-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .budget-card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .budget-card h3 {
+      margin: 0 0 11px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .budget-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .budget-list li {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 10px;
+      padding-top: 7px;
+      border-top: 1px solid #edf0ec;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .budget-list code {
+      align-self: start;
+      color: #1c7630;
+      background: #eef6ee;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .anti-patterns {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .anti-card {
+      padding: 15px;
+      border: 1px solid #e3d8cc;
+      border-radius: 9px;
+      background: #fffdf9;
+    }
+
+    .anti-card .anti-mark {
+      display: block;
+      margin-bottom: 9px;
+      color: #a5652b;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .anti-card h3 {
+      margin: 0 0 5px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .anti-card p {
+      margin: 0;
+      color: #756a60;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .case-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .case-card {
+      min-height: 170px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .case-label {
+      display: block;
+      margin-bottom: 28px;
+      color: #2f9946;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .07em;
+    }
+
+    .case-card h3 {
+      margin-bottom: 6px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .case-card p {
+      margin-bottom: 0;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.58;
+    }
+
+    .recipe {
+      overflow: hidden;
+      border: 1px solid #1b3020;
+      border-radius: 10px;
+      background: #071009;
+    }
+
+    .recipe-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 39px;
+      padding: 0 14px;
+      border-bottom: 1px solid rgba(64,255,94,.18);
+      color: var(--green-48);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .05em;
+    }
+
+    .recipe-head span:last-child { color: rgba(64,255,94,.32); }
+
+    pre {
+      margin: 0;
+      padding: 17px 19px;
+      overflow-x: auto;
+      color: var(--green-72);
+      font-family: var(--mono);
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    pre .token { color: var(--green); }
+    pre .muted { color: var(--green-48); }
+
+    .runtime-notes {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .runtime-note {
+      display: grid;
+      grid-template-columns: 19px minmax(0, 1fr);
+      gap: 10px;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.56;
+    }
+
+    .runtime-note::before {
+      color: #2b9e45;
+      font-family: var(--mono);
+      font-size: 12px;
+      font-weight: 700;
+      content: "→";
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .review-card {
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .review-card span {
+      display: block;
+      margin-bottom: 12px;
+      color: #299244;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .07em;
+    }
+
+    .review-card h3 {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .review-card p {
+      margin: 0;
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .source-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 28px;
+    }
+
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 35px;
+      padding: 6px 11px;
+      border: 1px solid var(--line-strong);
+      border-radius: 7px;
+      color: #365340;
+      background: #fff;
+      font-size: 12px;
+      text-decoration: none;
+    }
+
+    .source-link::before {
+      color: #269842;
+      font-family: var(--mono);
+      content: "↗";
+    }
+
+    .source-link:hover {
+      border-color: #69ad76;
+      color: #126426;
+    }
+
+    .page-foot {
+      padding-top: 30px;
+      color: #859087;
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    @media (max-width: 1170px) {
+      .doc-shell {
+        grid-template-columns: 216px minmax(0, 790px);
+        gap: 34px;
+      }
+
+      .right-rail { display: none; }
+    }
+
+    @media (max-width: 850px) {
+      .mobile-bar { display: flex; }
+
+      .doc-shell {
+        display: block;
+        padding: 0 20px;
+      }
+
+      .sidebar { display: none; }
+
+      main {
+        padding-top: 48px;
+        padding-bottom: 64px;
+      }
+
+      .thesis-grid,
+      .anti-patterns,
+      .review-grid { grid-template-columns: 1fr; }
+
+      .anchor-grid,
+      .budget-grid,
+      .case-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      body { font-size: 14px; }
+
+      .doc-shell { padding: 0 15px; }
+
+      .hero { padding-bottom: 44px; }
+
+      .section { padding: 49px 0; }
+
+      .section h2 { font-size: 24px; }
+
+      .hero-lede { font-size: 16px; }
+
+      .lab { padding: 12px; }
+
+      .control-button { font-size: 11px; }
+
+      .scene-caption { grid-template-columns: 1fr; gap: 3px; }
+
+      .caption-state { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <header class="mobile-bar">
+    <div class="mobile-brand"><span class="brand-mark"></span>AIUI · HUD</div>
+    <div class="mobile-version">GREEN / BETA</div>
+  </header>
+
+  <div class="doc-shell">
+    <aside class="sidebar" aria-label="设计页目录">
+      <a class="brand" href="#overview">
+        <span class="brand-title"><span class="brand-mark"></span>AIUI · Design</span>
+        <span class="brand-subtitle">Monochrome-green / spatial HUD</span>
+      </a>
+
+      <nav>
+        <span class="side-label">空间规范</span>
+        <ul class="side-group">
+          <li><a class="active" href="#overview">总览：让 UI 退一步</a></li>
+          <li><a href="#placement">先选位置，再选组件</a></li>
+          <li><a href="#lab">交互式场景对照</a></li>
+          <li><a href="#attention">注意力预算</a></li>
+        </ul>
+
+        <span class="side-label">落地与验证</span>
+        <ul class="side-group">
+          <li><a href="#cases">从项目迭代中提炼</a></li>
+          <li><a href="#runtime">AIUI 实现配方</a></li>
+          <li><a href="#review">真机验收</a></li>
+          <li><a href="#sources">规范与源码</a></li>
+        </ul>
+      </nav>
+
+      <p class="side-foot">
+        480 × 352 是坐标边界，<br>
+        不是视觉占用目标。<br><br>
+        低干扰空间 HUD · beta
+      </p>
+    </aside>
+
+    <main>
+      <section class="hero" id="overview">
+        <p class="eyebrow">Rokid AIUI · Monochrome-green extension</p>
+        <h1>让 UI 在眼镜里<br>退一步。</h1>
+        <p class="hero-lede">
+          <strong>单绿低干扰空间 HUD</strong> 不是另一套皮肤，而是一套空间决策。
+          眼镜是看世界的窗口；<span>480 × 352</span> 只是坐标与安全边界，不是需要填满的手机屏幕。
+          默认把常驻信息放在下方，将中央留给现实与真正的任务内容。
+        </p>
+        <div class="pill-row" aria-label="关键原则">
+          <span class="pill">WINDOW, NOT SCREEN</span>
+          <span class="pill">BOTTOM BY DEFAULT</span>
+          <span class="pill">ONE ATTENTION PEAK</span>
+          <span class="pill">TRANSPARENT BY DEFAULT</span>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="principle-heading">
+        <p class="section-index">01 / CORE PRINCIPLE</p>
+        <h2 id="principle-heading">把“全屏 Page”与“全视野 UI”分开。</h2>
+        <p class="section-intro">
+          全屏 Page 是运行时的承载方式，不是视觉形态。透明眼镜中，通用标题、菜单、状态栏和按钮不应因为有整块画布就占据整块画布。
+          每一束亮光都要有任务理由。
+        </p>
+
+        <div class="thesis-grid">
+          <article class="thesis-card">
+            <span class="thesis-number">01 / QUIET</span>
+            <h3>无事发生时，什么也不显示。</h3>
+            <p>等待、聆听、后台同步等静默状态不需要常驻装饰。留白本身就是对现实世界的尊重。</p>
+          </article>
+          <article class="thesis-card">
+            <span class="thesis-number">02 / LOWER FIELD</span>
+            <h3>常驻信息默认停在下方。</h3>
+            <p>短提示、状态与一个动作形成稳定的低位锚点，不挤占中心任务内容和上方视野。</p>
+          </article>
+          <article class="thesis-card">
+            <span class="thesis-number">03 / TASK CONTENT</span>
+            <h3>中央只属于任务本身。</h3>
+            <p>阅读内容、配对码、角色、游戏或相机画面可以进入中央；通用应用 chrome 不可以。</p>
+          </article>
+        </div>
+
+        <aside class="callout">
+          <span class="callout-symbol">i</span>
+          <div>“下方优先”来自产品迭代与佩戴体验的默认偏好，不是所有用户、所有眼镜的生理定律。它必须经由真机、不同背景和真实任务校准。</div>
+        </aside>
+      </section>
+
+      <section class="section" id="placement" aria-labelledby="placement-heading">
+        <p class="section-index">02 / PLACEMENT GRAMMAR</p>
+        <h2 id="placement-heading">先选位置，再选组件。</h2>
+        <p class="section-intro">
+          一个稳定页面状态先选择一种空间模式。不要把“更多信息”理解成“更多区域都该亮起来”。
+          当任务变化，模式才变化；完成后，优先回到更安静的状态。
+        </p>
+
+        <div class="mode-table-wrap">
+          <table class="mode-table">
+            <thead>
+              <tr>
+                <th>模式</th>
+                <th>适用任务</th>
+                <th>默认位置</th>
+                <th>不应这样使用</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>quiet</td>
+                <td>没有需要决策或确认的信息</td>
+                <td>不显示 HUD</td>
+                <td>用常驻装饰证明“应用正在运行”</td>
+              </tr>
+              <tr>
+                <td>bottom-primary</td>
+                <td>常驻提示、短操作、播放或任务状态</td>
+                <td>下方主栏 + 最底页脚</td>
+                <td>把通用 chrome 包进中部大卡片</td>
+              </tr>
+              <tr>
+                <td>lower-center-moment</td>
+                <td>配对码、一次确认、短时关键数据</td>
+                <td>下半部居中、无页面外框</td>
+                <td>留下整页登录面板或厚边框</td>
+              </tr>
+              <tr>
+                <td>top-transient</td>
+                <td>非关键、短暂状态</td>
+                <td>顶部安全条</td>
+                <td>用它承载主操作或长文</td>
+              </tr>
+              <tr>
+                <td>center-task</td>
+                <td>阅读、对象检查、角色内容</td>
+                <td>有边界的中央任务内容</td>
+                <td>放状态栏、设置墙或导航菜单</td>
+              </tr>
+              <tr>
+                <td>immersive-content</td>
+                <td>游戏、相机、媒体、空间可视化</td>
+                <td>全画布任务内容</td>
+                <td>把全屏内容当成全屏应用外壳</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="anchor-grid">
+          <div class="zone-stage" aria-label="480 x 352 参考画布的空间区域">
+            <span class="coordinate-tag top">480 × 352 · coordinate boundary</span>
+            <span class="coordinate-tag bottom">safe inset: 16 / 12</span>
+            <div class="zone zone-top">TOP TRANSIENT<br><span>短暂 · 非关键</span></div>
+            <div class="zone zone-center">CENTER TASK<br><span>内容，不是 chrome</span></div>
+            <div class="zone zone-rail">BOTTOM PRIMARY<br><span>主提示 / 当前动作</span></div>
+            <div class="zone zone-footer">FOOTER · 14px</div>
+          </div>
+
+          <div class="anchor-notes">
+            <div class="anchor-note">
+              <code>hud-gutter-x · 28px</code>
+              <p>下方主栏与页脚的左右留白，避免靠边的压迫感和光学边缘干扰。</p>
+            </div>
+            <div class="anchor-note">
+              <code>lower-rail-bottom · 58px</code>
+              <p>常驻信息的起始锚点。主栏常规状态建议不高于 100px。</p>
+            </div>
+            <div class="anchor-note">
+              <code>footer-bottom · 14px</code>
+              <p>最简短的时间、手势提示或状态标签；它不应变成第二个工具栏。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="lab" aria-labelledby="lab-heading">
+        <p class="section-index">03 / SCENE LAB</p>
+        <h2 id="lab-heading">同一块画布，能少亮多少？</h2>
+        <p class="section-intro">
+          切换场景与背景，观察位置、填充和焦点怎样改变视觉负担。这里是浏览器里的文档演示，不是 AIUI 运行时代码。
+        </p>
+
+        <div class="lab">
+          <div class="lab-header">
+            <div>
+              <h3 class="lab-title">空间场景实验室</h3>
+              <p class="lab-subtitle">推荐案例与反例并列，让规则可被看见、也可被 AI 明确描述。</p>
+            </div>
+            <div class="control-group" aria-label="选择 HUD 场景">
+              <button class="control-button" type="button" data-scene="word" aria-pressed="true">推荐：下方主栏</button>
+              <button class="control-button" type="button" data-scene="pairing" aria-pressed="false">推荐：配对瞬间</button>
+              <button class="control-button" type="button" data-scene="menu" aria-pressed="false">推荐：单一焦点</button>
+              <button class="control-button" type="button" data-scene="pet" aria-pressed="false">例外：角色内容</button>
+              <button class="control-button" type="button" data-scene="game" aria-pressed="false">例外：沉浸内容</button>
+              <button class="control-button" type="button" data-scene="bad-shell" aria-pressed="false">反例：整页应用卡</button>
+              <button class="control-button" type="button" data-scene="settings" aria-pressed="false">反例：设置墙</button>
+            </div>
+          </div>
+
+          <div class="environment-row" aria-label="选择真实环境">
+            <span class="environment-label">现实背景</span>
+            <button class="control-button" type="button" data-environment="dark" aria-pressed="true">暗背景</button>
+            <button class="control-button" type="button" data-environment="bright" aria-pressed="false">明亮背景</button>
+            <button class="control-button" type="button" data-environment="busy" aria-pressed="false">杂乱背景</button>
+          </div>
+
+          <div class="lens-wrap">
+            <div class="lens-stage" id="lens-stage" data-environment="dark" data-scene="word" aria-live="polite"></div>
+          </div>
+
+          <div class="scene-caption" id="scene-caption"></div>
+        </div>
+      </section>
+
+      <section class="section" id="attention" aria-labelledby="attention-heading">
+        <p class="section-index">04 / ATTENTION BUDGET</p>
+        <h2 id="attention-heading">不是组件数量，而是注意力总量。</h2>
+        <p class="section-intro">
+          单绿系统已经规定亮度 token；空间 HUD 进一步限制每个稳定状态可以同时要求用户注意多少东西。
+          一眼能说出“现在看什么”，才是有效的层级。
+        </p>
+
+        <div class="budget-grid">
+          <article class="budget-card">
+            <h3>常规状态的预算</h3>
+            <ul class="budget-list">
+              <li><code>bright value · 1</code><span>最亮的文字、数字或动作只留给当前必须注意的事。</span></li>
+              <li><code>strong outline · 1</code><span>强描边只标识当前焦点、活动目标或被检查的任务内容。</span></li>
+              <li><code>local fill · 0–1</code><span>填充只支撑局部选择，最高为 <code>primary-12</code>。</span></li>
+              <li><code>persistent copy · 2</code><span>一个下方主栏加一个页脚；其余信息合并、按需出现或顺序呈现。</span></li>
+            </ul>
+          </article>
+
+          <article class="budget-card">
+            <h3>焦点如何切换</h3>
+            <ul class="budget-list">
+              <li><code>inactive · open</code><span>未选菜单项是文字、图标或安静分隔线，不是同亮度的卡片。</span></li>
+              <li><code>focused · framed</code><span>当前项获得唯一的强框、方向标记与可选的局部浅填充。</span></li>
+              <li><code>stable footprint</code><span>焦点变化不改变列表几何尺寸，不让周边元素闪烁或跳动。</span></li>
+              <li><code>resolve · quiet</code><span>确认、超时或完成后，选择器消失或降级为简短结果。</span></li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="anti-patterns">
+          <article class="anti-card">
+            <span class="anti-mark">Anti-pattern 01</span>
+            <h3>大面积绿色或黑色背景</h3>
+            <p>它把真实世界当成要被遮掉的内容。先删背景，再删容器，最后才判断是否需要局部线框。</p>
+          </article>
+          <article class="anti-card">
+            <span class="anti-mark">Anti-pattern 02</span>
+            <h3>每个选项一个同样亮的框</h3>
+            <p>这会强迫用户横向扫视并让所有选择同时竞争。强焦点应该是稀缺资源。</p>
+          </article>
+          <article class="anti-card">
+            <span class="anti-mark">Anti-pattern 03</span>
+            <h3>把完成后的 UI 留在屏幕上</h3>
+            <p>一个已完成的配对、同步或确认不应继续发光。结果无须比过程更喧闹。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="cases" aria-labelledby="cases-heading">
+        <p class="section-index">05 / ITERATION EVIDENCE</p>
+        <h2 id="cases-heading">从四个应用的迭代中提炼，而不是复制某一张截图。</h2>
+        <p class="section-intro">
+          这些模式来自同一条产品演进：先识别手机式、卡片式和仪表盘式的视觉负担，再把常驻 chrome 收束到边缘，让内容本体得到它真正需要的空间。
+        </p>
+
+        <div class="case-grid">
+          <article class="case-card">
+            <span class="case-label">别卡壳 / LOWER RAIL</span>
+            <h3>去掉上方状态与中央大框。</h3>
+            <p>词条、配对和操作提示收进下方主栏；计时与手势提示沉到页脚；时效只用一条细线表达。</p>
+          </article>
+          <article class="case-card">
+            <span class="case-label">剧本杀助手 / SINGLE FOCUS</span>
+            <h3>去除共享 HUD 色块。</h3>
+            <p>同一交互分组只保留一个完整焦点框。未选项是安静的空间与文字，而不是一墙等权的发光控件。</p>
+          </article>
+          <article class="case-card">
+            <span class="case-label">赛博宠物 / CENTER AS CONTENT</span>
+            <h3>角色可以在中央，但 chrome 不可以。</h3>
+            <p>宠物是语义内容，所以可以拥有中心；雷达、扫描环、仪表和冗余外壳被移除，状态与控制仍然下沉。</p>
+          </article>
+          <article class="case-card">
+            <span class="case-label">尖叫酷跑 / IMMERSIVE EXCEPTION</span>
+            <h3>全屏内容不等于全屏界面。</h3>
+            <p>游戏世界可占画布，因为它就是任务；得分、音量、提示等通用 chrome 仍然退到边缘或地面。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="runtime" aria-labelledby="runtime-heading">
+        <p class="section-index">06 / AIUI RUNTIME RECIPE</p>
+        <h2 id="runtime-heading">AI 要加载同一份规则；运行时只用已确认能力。</h2>
+        <p class="section-intro">
+          本 profile 直接镜像到现有 <code>aiui-dev</code> Skill 的按需 reference 中。
+          对符合条件的单绿全屏 Page：先加载基础 <code>monochrome-green</code>，再加载空间 HUD 规则；不会新建独立 Skill，也不会把规则误套给对话卡片或普通 Widget。
+        </p>
+
+        <div class="recipe" aria-label="下方 HUD 的 WXSS 布局配方">
+          <div class="recipe-head">
+            <span>WXSS · eligible full-screen Page</span>
+            <span>relative canvas + absolute anchors</span>
+          </div>
+          <pre><span class="token">.page</span> {
+  position: relative;
+  width: 480px;
+  height: 352px;
+}
+
+<span class="token">.lower-rail</span> {
+  position: absolute;
+  left: 28px; right: 28px;
+  bottom: 58px;
+}
+
+<span class="token">.hud-footer</span> {
+  position: absolute;
+  left: 28px; right: 28px;
+  bottom: 14px;
+  height: 18px;
+}</pre>
+        </div>
+
+        <div class="runtime-notes">
+          <div class="runtime-note">非导航性 HUD 分组优先使用透明的 <code>&lt;view&gt;</code>；只有导航语义成立时才使用 <code>&lt;card&gt;</code>。</div>
+          <div class="runtime-note">用已支持的 <code>position: relative</code> / <code>absolute</code> 和 <code>transition</code> 表达锚点与状态变化；不要将浏览器 CSS 动画、keyframes 或 sticky 当成可依赖能力。</div>
+          <div class="runtime-note">完成后的收束应由数据状态驱动：移除覆盖层或切换到更安静状态，而不是保留一段装饰动画。</div>
+        </div>
+      </section>
+
+      <section class="section" id="review" aria-labelledby="review-heading">
+        <p class="section-index">07 / ON-DEVICE REVIEW</p>
+        <h2 id="review-heading">一张黑底截图通过，不代表眼镜上通过。</h2>
+        <p class="section-intro">
+          浏览器中的黑色只是在模拟透明显示。每个稳定状态都要放回真实背景里，检查用户正在走路、转头、看远处时，HUD 是否仍然克制且可用。
+        </p>
+
+        <div class="review-grid">
+          <article class="review-card">
+            <span>BACKGROUND</span>
+            <h3>暗、亮、杂乱</h3>
+            <p>关键文字与图标是否仍在安全区内可读？语义是否仍然不只依赖绿色亮度？</p>
+          </article>
+          <article class="review-card">
+            <span>MOTION</span>
+            <h3>静止、行走、转头</h3>
+            <p>顶部、中央或全画布内容是否有足够任务理由？是否会压过现实环境的注意力？</p>
+          </article>
+          <article class="review-card">
+            <span>FOCUS & EXIT</span>
+            <h3>确认、返回、完成</h3>
+            <p>焦点是否唯一且稳定？确认或超时之后，界面会不会立刻消失或安静下来？</p>
+          </article>
+        </div>
+
+        <aside class="callout">
+          <span class="callout-symbol">✓</span>
+          <div>最终问题很简单：如果删掉这块 HUD，用户会不会失去当前任务所需的信息？如果不会，优先让它消失。</div>
+        </aside>
+      </section>
+
+      <section class="section" id="sources" aria-labelledby="sources-heading">
+        <p class="section-index">08 / SOURCE OF TRUTH</p>
+        <h2 id="sources-heading">供人阅读，也供 AI 精确加载。</h2>
+        <p class="section-intro">
+          本页是可浏览的解释与场景对照。可机器读取的规则、AI reference 镜像和公开文档分别保持清晰职责，避免再出现“页面漂亮但 AI 仍生成旧卡片”的漂移。
+        </p>
+
+        <div class="source-links">
+          <a class="source-link" href="./design-system-green-spatial-hud.md">空间 HUD 源规范</a>
+          <a class="source-link" href="../design-system-green.md">基础单绿 token</a>
+          <a class="source-link" href="../../../documentation/6-design/visual/glasses-hud.md">中文公开文档</a>
+          <a class="source-link" href="../../../documentation/6-design/visual/glasses-hud.en-US.md">English documentation</a>
+          <a class="source-link" href="../../../skills/aiui-dev/references/design/green-spatial-hud.md">aiui-dev reference</a>
+        </div>
+
+        <p class="page-foot">
+          ROKID AIUI · Monochrome-green low-interference spatial HUD · v beta<br>
+          Browser page only: its interactive controls explain the design; they are not AIUI runtime APIs.
+        </p>
+      </section>
+    </main>
+
+    <aside class="right-rail" aria-label="本页目录">
+      <h2>On this page</h2>
+      <a href="#overview">总览</a>
+      <a href="#placement">空间模式</a>
+      <a href="#lab">场景实验室</a>
+      <a href="#attention">注意力预算</a>
+      <a href="#cases">迭代证据</a>
+      <a href="#runtime">实现配方</a>
+      <a href="#review">真机验收</a>
+      <a href="#sources">规范与源码</a>
+    </aside>
+  </div>
+
+  <script>
+    (function () {
+      var stage = document.getElementById("lens-stage");
+      var caption = document.getElementById("scene-caption");
+      var common = '<div class="stage-measure">480 × 352</div><div class="stage-state">transparent display</div>';
+
+      var scenes = {
+        word: {
+          state: "recommended",
+          label: "推荐 / bottom-primary",
+          title: "词条与操作留在下方主栏",
+          copy: "中心与上方保持开放。一个当前词条、一个动作和一条细进度线已经足够；时间与手势提示缩为页脚。",
+          html: [
+            '<div class="scene-word">',
+              '<div class="hud-rail">',
+                '<p class="hud-kicker">pronunciation / 02</p>',
+                '<div class="hud-mainline"><strong>enunciate</strong><span class="hud-action">点头聆听</span></div>',
+                '<div class="progress-track"><span class="progress-fill"></span><span class="progress-node"></span></div>',
+              '</div>',
+              '<div class="hud-footer"><span>单击打开菜单</span><strong>04:56</strong></div>',
+            '</div>'
+          ].join("")
+        },
+        pairing: {
+          state: "recommended",
+          label: "推荐 / lower-center-moment",
+          title: "配对码是唯一亮点，而不是一张登录卡",
+          copy: "一次性的码在下半部居中，倒计时退化为细线和弱文案。成功、失效或返回后都应离场。",
+          html: [
+            '<div class="scene-pairing">',
+              '<div class="pairing-moment">',
+                '<p class="pairing-label">网页登录</p>',
+                '<p class="pairing-code">935628</p>',
+                '<p class="pairing-hint">剩余 29 秒 · 请在电脑输入</p>',
+                '<div class="pairing-track"><span></span></div>',
+              '</div>',
+              '<div class="hud-footer"><span>返回退出</span><span>一次任务</span></div>',
+            '</div>'
+          ].join("")
+        },
+        menu: {
+          state: "recommended",
+          label: "推荐 / single focus",
+          title: "一个菜单分组只亮一个焦点",
+          copy: "未选项保留开放的文字和占位，当前项拥有唯一强框与方向标记。切换时，列表尺寸不变。",
+          html: [
+            '<div class="scene-menu">',
+              '<div class="menu-rail">',
+                '<div class="menu-row"><span class="menu-icon">·</span><span>播放速度</span><span>1.0×</span></div>',
+                '<div class="menu-row focused"><span class="menu-icon">›</span><span>语音角色</span><span>默认</span></div>',
+                '<div class="menu-row"><span class="menu-icon">·</span><span>自动朗读</span><span>开</span></div>',
+              '</div>',
+              '<div class="menu-hint">左右切换 · 确认选择</div>',
+            '</div>'
+          ].join("")
+        },
+        pet: {
+          state: "exception",
+          label: "例外 / center-task",
+          title: "角色可以在中央，因为它是任务内容",
+          copy: "中心对象是宠物本身，而不是外壳。状态与操作仍然下沉；不要再加雷达、扫描环和一圈仪表盘。",
+          html: [
+            '<div class="scene-pet">',
+              '<div class="pet-avatar"><span class="pet-ear left"></span><span class="pet-ear right"></span><span class="pet-eye left"></span><span class="pet-eye right"></span><span class="pet-mouth"></span></div>',
+              '<div class="pet-name">MOMO · CALM</div>',
+              '<div class="hud-rail">',
+                '<p class="hud-kicker">伙伴状态</p>',
+                '<div class="hud-mainline"><strong>想去散步</strong><span class="hud-action">轻触回应</span></div>',
+                '<div class="progress-track"><span class="progress-fill" style="width:31%"></span><span class="progress-node" style="left:31%"></span></div>',
+              '</div>',
+              '<div class="hud-footer"><span>语音可用</span><span>一次互动</span></div>',
+            '</div>'
+          ].join("")
+        },
+        game: {
+          state: "exception",
+          label: "例外 / immersive-content",
+          title: "全画布属于游戏内容，不属于应用 chrome",
+          copy: "画面能占满是因为它就是任务。得分、音量和返回只留下边缘的最小状态，不重新加回手机式顶栏。",
+          html: [
+            '<div class="scene-game">',
+              '<div class="game-world"><div class="game-sky"></div><div class="game-mountain one"></div><div class="game-mountain two"></div><div class="game-ground"></div><div class="game-player"></div><div class="game-obstacle"></div></div>',
+              '<div class="game-status"><span>RUSH · 018</span><span>声音 62%</span></div>',
+            '</div>'
+          ].join("")
+        },
+        "bad-shell": {
+          state: "bad",
+          label: "不推荐 / full-screen shell",
+          title: "不要用整页应用卡来“完成”页面",
+          copy: "厚边框、大面积绿色填充、居中的通用标题和实体按钮会一起遮挡环境。它们不是信息层级，而是视觉重量。",
+          html: [
+            '<div class="scene-bad-shell">',
+              '<div class="bad-shell">',
+                '<div class="bad-shell-top"><span>library / synced</span><span>1 / 2</span></div>',
+                '<h4>MEETLENS</h4>',
+                '<p>自动播报 · 当前课程<br>所有状态与操作同时出现</p>',
+                '<button class="bad-button" type="button">开始学习</button>',
+              '</div>',
+            '</div>'
+          ].join("")
+        },
+        settings: {
+          state: "bad",
+          label: "不推荐 / settings wall",
+          title: "不要让一排设置框横贯整个视野",
+          copy: "多个同权重的亮框会强迫横向扫视，右侧还会被裁切。改为一个焦点框加逐步展开的内容。",
+          html: [
+            '<div class="scene-settings">',
+              '<div class="settings-heading">设置</div>',
+              '<div class="settings-wall">',
+                '<div class="setting-tile">主模式<br>关</div>',
+                '<div class="setting-tile">专注设置<br>开</div>',
+                '<div class="setting-tile">头部控制<br>开</div>',
+                '<div class="setting-tile">颈椎保护<br>开</div>',
+                '<div class="setting-tile">白噪音<br>关</div>',
+                '<div class="setting-tile">边角显示<br>开</div>',
+              '</div>',
+              '<div class="settings-note">所有选项都像当前焦点 · 需要反复扫视</div>',
+            '</div>'
+          ].join("")
+        }
+      };
+
+      function setScene(id) {
+        var scene = scenes[id];
+        if (!scene) return;
+        stage.dataset.scene = id;
+        stage.innerHTML = common + scene.html;
+        caption.innerHTML =
+          '<span class="caption-state ' + (scene.state === "bad" ? "bad" : "") + '">' + scene.label + '</span>' +
+          '<div class="caption-copy"><h3>' + scene.title + '</h3><p>' + scene.copy + '</p></div>';
+
+        document.querySelectorAll("[data-scene]").forEach(function (button) {
+          button.setAttribute("aria-pressed", String(button.dataset.scene === id));
+        });
+      }
+
+      function setEnvironment(name) {
+        stage.dataset.environment = name;
+        document.querySelectorAll("[data-environment]").forEach(function (button) {
+          if (button.tagName === "BUTTON") {
+            button.setAttribute("aria-pressed", String(button.dataset.environment === name));
+          }
+        });
+      }
+
+      document.querySelectorAll("[data-scene]").forEach(function (button) {
+        button.addEventListener("click", function () { setScene(button.dataset.scene); });
+      });
+
+      document.querySelectorAll("button[data-environment]").forEach(function (button) {
+        button.addEventListener("click", function () { setEnvironment(button.dataset.environment); });
+      });
+
+      setScene("word");
+      setEnvironment("dark");
+    }());
+  </script>
+</body>
+</html>

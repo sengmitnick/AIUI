@@ -949,6 +949,10 @@
           {
             "id": "monochrome",
             "label": "Monochrome"
+          },
+          {
+            "id": "glasses-hud",
+            "label": "Low-Interference Spatial HUD"
           }
         ],
         "hasIndex": true

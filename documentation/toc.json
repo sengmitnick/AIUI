@@ -1141,6 +1141,10 @@
           {
             "id": "monochrome",
             "label": "单色显示"
+          },
+          {
+            "id": "glasses-hud",
+            "label": "低干扰空间 HUD"
           }
         ],
         "hasIndex": true

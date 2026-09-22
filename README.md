@@ -63,14 +63,17 @@ The [`documentation/`](./documentation/) directory contains the official AIUI do
 
 The [`design/`](./design/) directory holds AIUI's visual design language specs, organized by **display type**:
 
-- [`design/monochrome/`](./design/monochrome/) — specs for **single-color display** hardware. The active [`green`](./design/monochrome/design-system-green.md) variant targets RokidGlasses1 / RokidGlasses2, whose hardware can only reproduce one luminous green channel over pure black. Covers colors (one green across four opacity tiers), typography, spacing, radii, border widths, component chrome, and Do's & Don'ts.
+- [`design/monochrome/`](./design/monochrome/) — specs for **single-color display** hardware. The active [`green`](./design/monochrome/design-system-green.md) variant targets RokidGlasses1 / RokidGlasses2, whose hardware can only reproduce one luminous green channel over pure black. Covers colors (one green across six luminance roles), typography, spacing, radii, border widths, component chrome, and Do's & Don'ts.
   - [`design-system-green.md`](./design/monochrome/design-system-green.md) — full token spec.
   - [`preview-green.html`](./design/monochrome/preview-green.html) — self-contained, browsable visual showcase (no build step).
+  - [`glasses-hud/`](./design/monochrome/glasses-hud/) — low-interference spatial HUD profile for eligible full-screen transparent-glasses Pages.
+    - [`design-system-green-spatial-hud.md`](./design/monochrome/glasses-hud/design-system-green-spatial-hud.md) — placement, attention, runtime, and device-review rules.
+    - [`preview-green-spatial-hud.html`](./design/monochrome/glasses-hud/preview-green-spatial-hud.html) — self-contained interactive design guide (no build step).
 - `design/fullcolor/` — **planned**, for full-RGB display hardware. Not yet authored.
 
 > The design system **currently applies only to single-green monochrome display devices**. The `design/` layout keeps the current green spec stable and leaves room for the planned full-color variant.
 
-The same monochrome-green spec is also bundled inside the `aiui-dev` skill (see below), so AI agents generating AIUI code align with these tokens automatically.
+The base monochrome-green spec and its low-interference spatial HUD profile are bundled as on-demand references inside the existing `aiui-dev` skill (see below), so AI agents can distinguish a normal component from an eligible full-screen transparent-glasses Page.
 
 ## 🤖 AI Agent Skills
 
@@ -110,7 +113,8 @@ If you'd like to request a feature or report a bug, please use the GitHub issue 
 │   ├── monochrome/                     # single-color display specs
 │   │   ├── README.md                   # monochrome variants (currently green)
 │   │   ├── design-system-green.md      # AIUI monochrome-green token spec
-│   │   └── preview-green.html          # browsable visual showcase (green)
+│   │   ├── preview-green.html          # browsable visual showcase (green)
+│   │   └── glasses-hud/                # low-interference spatial HUD profile
 │   └── fullcolor/                      # planned — full-RGB display specs
 ├── packages/
 │   ├── cloud-integration/    # npm client for Rokid Glasses notifications

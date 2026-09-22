@@ -9,13 +9,15 @@ AIUI runs on hardware with very different display capabilities, so visual guidan
 ```text
 visual/
 ├── index.en-US.md
-└── monochrome.en-US.md
+├── monochrome.en-US.md
+└── glasses-hud.en-US.md
 ```
 
 The current documentation structure mirrors the repository-level `design/` sources:
 
 - `design/README.md` -> this page
 - `design/monochrome/README.md` + `design/monochrome/design-system-green.md` -> `Monochrome`
+- `design/monochrome/glasses-hud/design-system-green-spatial-hud.md` -> `Low-Interference Spatial HUD`
 
 ## Display Types
 
@@ -35,6 +37,8 @@ The current primary spec is `Monochrome`, which includes the active `Green` vari
 - a HUD-style interface built from outlines, translucent fills, and stable whitespace
 - a Design Token layer used as the shared contract for host injection and app overrides
 
+For full-screen Pages that show persistent or momentary information, `Monochrome` also provides the `Low-Interference Spatial HUD` profile: it makes the lower rail the default, reserves the center for task content, and limits each stable state to one attention peak. It extends the green tokens; it does not replace the monochrome system or automatically apply to conversation cards and Widgets.
+
 ## How It Fits Into The Repository
 
 | Audience | Entry Point |
@@ -48,3 +52,4 @@ The purpose of this directory is not to replace `design/`, but to expose the sam
 ## Read Next
 
 - [Monochrome](/AIUI/design/visual-monochrome)
+- [Low-Interference Spatial HUD](/AIUI/design/visual-glasses-hud)

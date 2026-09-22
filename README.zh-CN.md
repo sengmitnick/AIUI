@@ -63,14 +63,17 @@ npm create @yodaos-pkg/aiui-agent@latest my-agent
 
 [`design/`](./design/) 目录存放 AIUI 的视觉设计语言规范，按**显示类型**分目录组织：
 
-- [`design/monochrome/`](./design/monochrome/) ——**单色显示**硬件的规范。当前激活的 [`green`](./design/monochrome/design-system-green.md) 变体面向 RokidGlasses1 / RokidGlasses2，硬件只能在纯黑之上再现单一的绿色通道。涵盖颜色（同一种绿色在纯黑之上分四个透明度层级）、排版、间距、圆角、描边宽度、组件外观以及“应做与不应做”清单。
+- [`design/monochrome/`](./design/monochrome/) ——**单色显示**硬件的规范。当前激活的 [`green`](./design/monochrome/design-system-green.md) 变体面向 RokidGlasses1 / RokidGlasses2，硬件只能在纯黑之上再现单一的绿色通道。涵盖颜色（同一种绿色在六个亮度角色中的表达）、排版、间距、圆角、描边宽度、组件外观以及“应做与不应做”清单。
   - [`design-system-green.md`](./design/monochrome/design-system-green.md) ——完整的 token 规范。
   - [`preview-green.html`](./design/monochrome/preview-green.html) ——自包含、可直接在浏览器打开的可视化预览，无需构建。
+  - [`glasses-hud/`](./design/monochrome/glasses-hud/) ——面向符合条件的全屏透明眼镜 Page 的单绿低干扰空间 HUD profile。
+    - [`design-system-green-spatial-hud.md`](./design/monochrome/glasses-hud/design-system-green-spatial-hud.md) ——位置、注意力、运行时与真机验收规则。
+    - [`preview-green-spatial-hud.html`](./design/monochrome/glasses-hud/preview-green-spatial-hud.html) ——无需构建的自包含交互设计页。
 - `design/fullcolor/` ——**预留**，面向全彩显示硬件，尚未编写。
 
 > 本设计系统**目前仅适用于单绿色单色显示设备**。`design/` 目录的结构在保持当前 green 规范稳定的同时，为规划中的全彩版本预留了位置。
 
-同一份单绿规范也会随下方的 `aiui-dev` 技能一同打包分发，因此 AI 编码助手在生成 AIUI 代码时会自动对齐这些 token。
+基础单绿规范和低干扰空间 HUD profile 都会以按需 reference 的方式随下方已有的 `aiui-dev` 技能一同打包，使 AI 编码助手能够区分普通组件与符合条件的全屏透明眼镜 Page。
 
 ## 🤖 AI Agent 技能
 
@@ -110,7 +113,8 @@ npx skills add https://github.com/jsar-project/AIUI/tree/v0.1.0/skills/aiui-dev
 │   ├── monochrome/                     # 单色显示规范
 │   │   ├── README.md                   # 单色变体说明（目前为 green）
 │   │   ├── design-system-green.md      # AIUI 单绿色 token 规范
-│   │   └── preview-green.html          # 单绿系统的可视化预览
+│   │   ├── preview-green.html          # 单绿系统的可视化预览
+│   │   └── glasses-hud/                # 单绿低干扰空间 HUD profile
 │   └── fullcolor/                      # 预留 —— 全彩显示规范
 ├── packages/
 │   ├── cloud-integration/    # Rokid Glasses 云端通知集成 npm 包

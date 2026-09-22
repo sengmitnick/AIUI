@@ -54,6 +54,7 @@ Use this checklist after generating or modifying an AIUI agent and before declar
 - [ ] Color is not the only way to communicate state.
 - [ ] Generated UI copy avoids emoji unless explicitly required.
 - [ ] Monochrome-green rules are applied only when that Rokid Glasses target is intended.
+- [ ] For an eligible full-screen monochrome-green Page, the low-interference spatial HUD profile justifies any top, center, or full-canvas use; keeps persistent chrome in the lower rail by default; and leaves one primary attention peak.
 - [ ] Loading, empty, success, and failure states required by the task are implemented and distinguishable.
 
 ## 6. API and Data Checks

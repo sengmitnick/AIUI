@@ -9,13 +9,15 @@ AIUI 运行在显示能力差异很大的设备上，因此视觉规范不是单
 ```text
 visual/
 ├── index.md
-└── monochrome.md
+├── monochrome.md
+└── glasses-hud.md
 ```
 
 当前文档结构与仓库中的 `design/` 保持对应关系：
 
 - `design/README.md` -> 本页
 - `design/monochrome/README.md` + `design/monochrome/design-system-green.md` -> `Monochrome`
+- `design/monochrome/glasses-hud/design-system-green-spatial-hud.md` -> `低干扰空间 HUD`
 
 ## 显示类型
 
@@ -35,6 +37,8 @@ visual/
 - 以描边、透明填充和稳定留白构成 HUD 风格界面
 - 以 Design Tokens 作为宿主注入和应用覆盖的统一接口
 
+对于会展示常驻或瞬时信息的全屏 Page，`Monochrome` 还提供 `低干扰空间 HUD` profile：它把下方主栏设为默认、将中部留给任务内容，并限制每个稳定状态的注意力峰值。它扩展单绿 token，不取代单色规范，也不自动应用到对话卡片或 Widget。
+
 ## 与仓库的关系
 
 | 使用对象 | 入口 |
@@ -48,3 +52,4 @@ visual/
 ## 下一步阅读
 
 - [Monochrome](/AIUI/design/visual-monochrome)
+- [低干扰空间 HUD](/AIUI/design/visual-glasses-hud)

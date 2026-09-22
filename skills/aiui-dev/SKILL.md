@@ -14,6 +14,7 @@ Build AIUI agents from the current contracts in this skill. Do not assume an API
 - Read [components.md](./references/components.md) before using or reviewing built-in components and their attributes or events.
 - Read [wxss.md](./references/wxss.md) before writing styles, layout, selectors, animation, or custom fonts.
 - Read [monochrome-green.md](./references/design/monochrome-green.md) only for the monochrome-green Rokid Glasses visual language.
+- Read [green-spatial-hud.md](./references/design/green-spatial-hud.md) after `monochrome-green.md` for an eligible full-screen monochrome-green Page that presents persistent or momentary transparent-glasses HUD information. Do not load it for a dense conversation card, document reader, or reusable widget unless that product state explicitly uses the spatial HUD profile.
 - Read [APIs index](./references/apis/index.md), then its matching domain file, before using runtime APIs.
 - Read and apply [delivery checklist](./references/checklist.md) before declaring a generated or modified AIUI agent complete.
 - Start from the matching scaffold when useful: [minimal Page](./assets/minimal-page.ink), [minimal Widget](./assets/minimal-widget.ink), or [minimal Agent Worker](./assets/minimal-agent-worker.js).
@@ -40,6 +41,7 @@ Before styling, determine the intended surface:
 - Full-screen Page: interactive agent UI.
 - Widget: compact `1x1` or `1x2` surface with Widget lifecycle.
 - Monochrome-green Rokid Glasses: apply `design/monochrome-green.md` after the general WXSS rules.
+- Low-interference spatial HUD: for an eligible full-screen monochrome-green Page, apply `design/green-spatial-hud.md` after `design/monochrome-green.md`. It extends the base green visual language with placement and attention rules; it does not replace that system or automatically apply to cards, readers, and widgets.
 - Other displays: use theme tokens and task requirements; do not automatically apply the monochrome-green visual language.
 
 ## Runtime API Workflow

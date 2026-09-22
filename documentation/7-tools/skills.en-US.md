@@ -28,10 +28,12 @@ AIUI Skills provide task-specific context, conventions, and best practices for a
 - `apis-canvas.md`: reference for Canvas APIs
 - `components.md`: built-in component reference
 - `wxss.md`: WXSS and styling capability reference
-- `design-system-green.md`: design guidelines for green monochrome displays
+- `references/design/monochrome-green.md`: base visual guidance for green monochrome displays
+- `references/design/green-spatial-hud.md`: low-interference placement and attention rules for eligible full-screen monochrome-green Pages; it is loaded on demand by `aiui-dev`, not a standalone Skill
 
 ## Recommendations
 
 - Prefer `aiui-dev` when you want an agent to generate AIUI page code
 - Use the Skill as the source of truth when checking whether a component, style, or API is supported
 - Combine it with the design system reference when building interfaces for Rokid and similar target devices
+- For a full-screen monochrome-green Page that presents persistent or momentary HUD information, load the spatial HUD profile after the base green spec; do not automatically apply it to conversation cards, readers, or normal Widgets

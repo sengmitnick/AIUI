@@ -1,139 +1,80 @@
 # Monochrome
 
-`Monochrome` describes the AIUI design language for single-color display hardware.
+`Monochrome` describes AIUI's visual language for transparent single-color display hardware. The current public variant is `Green` for RokidGlasses1 / RokidGlasses2: every visible pixel is one green channel at a different luminance, and pure black represents the transparent display floor.
 
-These devices can render only one luminous channel over pure black, so they cannot rely on multi-color semantics for hierarchy, warning, highlighting, or data differentiation. Instead, hierarchy must be expressed through opacity, outlines, type weight, spacing, and layout structure.
+The monochrome system answers **how UI looks**: color, type, line treatment, spacing, and component chrome. For **where it belongs, when it appears, and how much attention it may occupy** on a full-screen Page, read [Low-Interference Spatial HUD](/AIUI/design/visual-glasses-hud).
 
-## Target Devices
+## Principles
 
-| Variant | Target Devices | Status |
+- Do not introduce a second color to communicate state. Pair status with copy, icon/shape, line pattern, or interaction state.
+- The transparent floor is not an opaque black mask; do not hide the physical environment behind large black panels.
+- Use outlines, luminance hierarchy, and stable whitespace—not blurred shadows—to organize information.
+- A panel is a local tool for a grouping that materially improves comprehension, not an app shell every page must have.
+- Keep essential content inside the safe field of the `480 × 352` reference canvas: `16px` horizontal and `12px` vertical reference insets.
+- Let task intent choose the Page mode and component. A navigation `<card>` must not become a universal background container.
+
+## Color and luminance roles
+
+This is not a multi-hue palette; it is one green luminance scale. Names stay aligned with the source spec:
+
+| Token | Typical use | Value |
 | --- | --- | --- |
-| `Green` | RokidGlasses1 / RokidGlasses2 | Active |
+| `primary` / `ink` | current focus, key data, maximum emphasis | `#40ff5e` |
+| `primary-72` / `ink-primary` | readable primary copy and active structure | `rgba(64,255,94,0.72)` |
+| `primary-48` / `ink-secondary` | secondary copy and normal boundaries | `rgba(64,255,94,0.48)` |
+| `primary-24` / `line-muted` | dividers and quiet structural cues | `rgba(64,255,94,0.24)` |
+| `primary-12` / `surface-active` | local selected/focused support fill | `rgba(64,255,94,0.12)` |
+| `primary-06` / `line-trace` | rare atmospheric trace or subtle surface | `rgba(64,255,94,0.06)` |
+| `background` / `surface` | transparent display floor | `#000000` |
 
-At the moment, `Green` is the only public monochrome spec.
+In a normal state, local fill never exceeds `primary-12`. Do not use large green fills for headers, default buttons, or page backgrounds.
 
-## Why A Separate Monochrome System
+## Typography, spacing, and boundaries
 
-Single-color display hardware differs substantially from full-color devices:
-
-- It can use only one hue, so red, blue, or multi-color status signals are not available
-- Shadows read poorly on transparent AR displays, so clear outlines and light fills work better
-- Content must stay within a comfortable field of view and should scroll after the height cap
-- Error states, muted hints, and highlighted states must all be expressed within the same hue
-
-## Current Variant: Green
-
-`Green` is the active monochrome visual spec in AIUI, targeting the single-green display hardware used by RokidGlasses1 and RokidGlasses2.
-
-The core constraint of this spec is simple: the device can render only one luminous green channel over pure black. The interface therefore cannot rely on a second hue for status or emphasis, and instead builds a complete HUD visual language through opacity, outlines, whitespace, and typographic hierarchy.
-
-## Green Design Constraints
-
-- **Single-green display**: Only the green channel is available, with no red, blue, or other hue
-- **Transparent display background**: The black base sits over the real world, so the interface floats rather than occludes
-- **Comfortable field of view**: Content uses a fixed width and a capped height before it scrolls
-- **No multi-color semantics**: Error states, muted hints, and highlighted states must all be expressed within the same green system
-
-## Green Core Characteristics
-
-- **One-hue opacity ladder**: Use four green opacity tiers, 100% / 60% / 40% / 8%, to build hierarchy
-- **Outlines over shadows**: Structure and emphasis come from borders, fills, and whitespace rather than blurred shadows
-- **Card-based floating panels**: All content is carried in fixed-width card surfaces
-- **Token first**: Colors, type, spacing, borders, and component parameters should all be expressed through Design Tokens
-- **Errors remain green**: Error hints do not switch to red, but use weaker borders and lighter fills inside the same hue
-
-## Canvas And Layout
-
-| Token | Meaning | Value |
-| --- | --- | --- |
-| `app-width` | Default canvas width | `480px` |
-| `height-min` | Default minimum height | `120px` |
-| `height-max` | Default maximum height | `352px` |
-
-The recommended pattern is a fixed-width card panel. Once content exceeds the maximum height, it should move into a scroll layout rather than keep expanding vertically.
-
-## Color System
-
-| Token | Use | Value |
-| --- | --- | --- |
-| `primary` | Primary accent, titles, key data | `#40ff5e` |
-| `primary-60` | Secondary text and default borders | `rgba(64,255,94,0.6)` |
-| `primary-40` | Light fills, highlighted surfaces, muted separators | `rgba(64,255,94,0.4)` |
-| `primary-08` | Input and error-container backgrounds | `rgba(64,255,94,0.08)` |
-| `background` | Page background | `#000000` |
-| `surface` | Card and container background | `#000000` |
-
-In this system, color is not a multi-hue palette. It is a single-green value and opacity ladder.
-
-## Typography Baseline
-
-| Token | Font Family | Size | Weight | Use |
-| --- | --- | --- | --- | --- |
-| `display` | `monospace` | `24px` | `700` | Panel titles and major headings |
-| `heading` | `monospace` | `18px` | `700` | Section headings |
-| `body` | `sans-serif` | `15px` | `400` | Body copy |
-| `body-sm` | `sans-serif` | `13px` | `400` | Dense information and table content |
-| `label` | `sans-serif` | `13px` | `600` | Button labels and field labels |
-| `caption` | `sans-serif` | `11px` | `400` | Meta information and timestamps |
-
-The recommended baseline uses monospace for headings and sans-serif for body copy, which further amplifies hierarchy on a single-color display.
-
-## Spacing, Radius, And Borders
-
-### Spacing
-
-- `xs`: `4px`
-- `sm`: `8px`
-- `md`: `12px`
-- `lg`: `18px`
-- `xl`: `24px`
-- `xxl`: `32px`
-
-### Radius
-
-- `sm`: `12px`
-- `md`: `12px`
-- `full`: `9999px`
-
-### Border Width
-
-- `thin`: `1px`
-- `default`: `2px`
-- `strong`: `4px`
-
-This system favors light fills, clear outlines, and stable whitespace, which fits transparent AR displays better than shadow-heavy styling.
-
-## Component Baselines
-
-| Component | Default Expression |
+| Category | Current baseline |
 | --- | --- |
-| `card` | Black surface + 2px default green outline + 12px radius |
-| `card-highlight` | 40% green fill + accent green outline |
-| `text-input` | 8% green background + 1px default outline |
-| `textarea` | Same chassis as `text-input`, for long-form input |
-| `button` | Emphasis through outline and label text instead of a solid filled button |
-| `error-state` | 8% green fill + 40% green border + primary green text |
-| `chart-container` | Reuses the same container treatment as `card` |
+| Maximum hierarchy | `display`: `22px`, 500, sans-serif |
+| Heading | `heading`: `16px`, 500, sans-serif |
+| Body | `body`: `14px`, 400, sans-serif |
+| Label / caption | `label`: `11px`; `caption`: `10px` |
+| Data | `data`: `13px`, 500, monospace |
+| Spacing | `2 / 4 / 8 / 12 / 16 / 24 / 32px` |
+| Radius | `0 / 2 / 4 / 6px`, only where local grouping needs it |
+| Default border | `1px` |
+| Focus border | `2px`, only for the current focus or active target |
+
+Use the “1px normal, 2px focused” hierarchy rather than 2px by default and 4px for emphasis. The number of strong outlines is also constrained by the [Low-Interference Spatial HUD](/AIUI/design/visual-glasses-hud) single-attention-peak rule.
+
+## Component baselines
+
+| Component | Default expression |
+| --- | --- |
+| `panel` / `card` | transparent or black floor + 1px `line-muted` local boundary + maximum 6px radius; only where grouping improves comprehension |
+| `card-highlight` | local `primary-12` fill + strong boundary; never page-wide highlighting |
+| `button` | compact outlined action; solid green fill is reserved for irreversible or critical confirmation |
+| `text-input` / `textarea` | `primary-06` low fill + normal boundary |
+| `list-row` | open row plus fine divider; do not stack every row as a card |
+| `status` / `error-state` | green text paired with label, icon/shape, or line pattern; errors do not turn red |
 
 ## Do
 
-- Use cards and outlines to build structure
-- Use the green opacity ladder to build hierarchy
-- Switch to scrolling once content exceeds the height cap
-- Reuse tokens instead of hardcoding styles in pages
-- Use border weight, surface level, and type weight for emphasis
+- Use tokens, typographic hierarchy, whitespace, and fine lines to create hierarchy.
+- Limit fill and strong outlines to the current local task or focus.
+- Let irrelevant information disappear when it has no task, rather than reserving permanent space.
+- Test readability against dark, bright, and visually busy backgrounds on target hardware.
+- Choose a spatial HUD mode before choosing components for a full-screen Page.
 
 ## Don't
 
-- Do not introduce a second hue
-- Do not rely on blurred shadows for depth
-- Do not make error states red
-- Do not let content expand beyond the comfortable field of view
-- Do not depend on hover as the primary interaction feedback
+- Do not introduce red, blue, or a second color, and do not rely only on green luminance to convey meaning.
+- Do not use page-sized cards, large green fills, shadows, or decorative borders to manufacture an “app” feel.
+- Do not draw every menu and settings item as an equally strong rounded box.
+- Do not assume browser CSS or font behavior is available in AIUI WXSS.
+- Do not treat `480 × 352` as a rectangle UI should fill.
 
-## Preview And Source
+## Source and preview
 
-- Design source: [design-system-green.md](https://github.com/jsar-project/AIUI/blob/main/design/monochrome/design-system-green.md)
-- Visual preview: [preview-green.html](https://github.com/jsar-project/AIUI/blob/main/design/monochrome/preview-green.html)
-
-If the monochrome line expands later, new color variants should be added under `Monochrome` instead of changing the semantic boundary of the current `Green` spec.
+- [Base monochrome-green source spec](https://github.com/sengmitnick/AIUI/blob/main/design/monochrome/design-system-green.md)
+- [Base monochrome-green visual preview](https://github.com/sengmitnick/AIUI/blob/main/design/monochrome/preview-green.html)
+- [Low-interference spatial HUD source spec](https://github.com/sengmitnick/AIUI/blob/main/design/monochrome/glasses-hud/design-system-green-spatial-hud.md)
+- [Low-interference spatial HUD interactive preview](https://github.com/sengmitnick/AIUI/blob/main/design/monochrome/glasses-hud/preview-green-spatial-hud.html)
